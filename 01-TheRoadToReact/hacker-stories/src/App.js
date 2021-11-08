@@ -68,6 +68,7 @@ function App() {
 
   // const [stories, setStories] = React.useState(initalStories);
   const [stories, setStories] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   const getAsyncStories = () => 
     new Promise(resolve => 
