@@ -51,7 +51,27 @@
 
 20. 接着介绍了React中的内联处理函数，有两种方式，一种是使用``bind``方法直接绑定参数的新函数,``<button type="button" onClick={onRemoveItem.bind(null, item)}>``,另一种更为流行的方式是包装一层箭头函数，``<button type="button" onClick={() => onRemoveItem(item)}>`` 
 
-21. 介绍React处理异步数据， 使用``useEffect``来获取数据，并传递一个空数组，因此管理副作用的函数仅在组件首次渲染后运行
+21. 介绍React处理异步数据， 使用``useEffect``来获取数据，并传递一个空数组，因此管理副作用的函数仅在组件首次渲染后运行  
+
+22. React条件渲染，这里主要介绍了React可以根据数据的不同状态对象渲染不同的``DOM``元素，比如说可以在异步获取数据的时候加入loading状态，提醒用户正在获取数据等为用户提供反馈机制
+
+23. 介绍了React中的``useState``这个``hook``之后，这里发现像是``loading error``这些状态和获取数据是同步发生改变的，太多的``sueState``反而不利于维护，所以我们会用新的``useReducer hook``替换``useState``， 首先需要我们在组件外部引入一个reducer函数，一个reducer函数总是接受state和action,基于这两个参数，reducer在返回一个新的state
+    > 通常来说，一个 reducer 的 action 会关联一个 type。如果这个 type 与 reducer 中的条件吻合，就可以继续我们的操作。如果 reducer 中并不包含这个条件，那就抛出一个错误提醒自己这个实现没有被覆盖。storiesReducer 函数包含一个 type，并且没有使用当前的状态来计算出一个新的 state，而是直接返回入参 action 的 payload。那新的 state 就自然是 payload了。
+
+24. 使用``useReducer``可以让我们摆脱一些不合理的状态，例如当我们的loading和error同时出现时，一般情况下，我们只希望出现错误信息，隐藏loading标识，如果使用``useState``的话就必须写多条语句去控制，但是我们可以将其整合到``useReducer``中，这样一来loading和error的改变就可以和数据的加载状态同步进行更改。
+
+25. 接下来介绍了另一个hooks，就是``useCallback``,也叫做``Memoized函数``，有什么好处呢，主要就是在组件复用上，如果未使用这个hook的话，例如网络请求会更改state里的数据，state的数据已更改，又会触发网络请求，造成无限循环，所以需要多封装一层，避免上述情况
+    > 如果我们没有使用 useCallback Hook 创建 memoized 函数的话，每当有一个 App 组件渲染时就会创建一个新的 handleFetchStories 方法。handleFetchStories 方法每次都会被创建，并且会在 useEffect Hook 中执行获取数据，随后获取到的数据会被存在组件的 state 中。因为组件的 state 改变了，所以组件就会重新渲染并创建一个新的 handleFetchStories 方法。副作用函数会被触发再次获取数据，这样我们就会陷入一个无限循环中： 
+
+    > 现在当 searchTerm 改变时，useEffect Hook 将会运行，因为每次 searchTerm 更改时都会重新定义 handleFetchStories。因为 useEffect Hook 依赖于 handleFetchStories，所以获取数据的副作用会再次运行。
+  
+### 🎉最后
+> 以上就是这本书关于React基本部分的内容。对个人而言，自己比较欠缺的有一下几个方面
+1. 书中提到的组件化的思想，将视图和逻辑分开处理，逻辑中有副作用的部分也单独处理；
+2. 还有就是一些小的知识点，比如说对象、数组的解耦，组件之间也可以像HTML标签一样开闭合，通过children来传递信息，展开运算符等平时没有注意到的；
+3. useCallback和useReducer这两个hook一直掌握不熟练，并且对它们的概念也没有很明白；
+
+
 
 
   

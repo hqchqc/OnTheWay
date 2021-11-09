@@ -27,49 +27,6 @@ function getTitle(title) {
 //   }
 // ]
 
-const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query='
-
-const storiesReducer = (state, action) => {
-  // if (action.type === 'SET_STORIES') {
-  //   return action.payload
-  // } else if(action.type === 'REMOVE_STORY') {
-  //   return state.filter(story => action.payload.objectID !== story.objectID)
-  // } else {
-  //   throw new Error()
-  // }
-  
-  switch (action.type) {
-    case 'STORIES_FETCH_INIT': 
-      return {
-        ...state,
-        isLoading: true,
-        isError: false,
-      }
-    case 'STORIES_FETCH_SUCCESS': 
-      return {
-        ...state,
-        isLoading: false,
-        isError: false,
-        data: action.payload
-      }
-    case 'STORIES_FETCH_FAILURE':
-      return {
-        ...state,
-        isLoading: false,
-        isError: true,
-      }
-    case 'REMOVE_STORY':
-      return {
-        ...state,
-        data: state.data.filter(
-          story => action.payload.objectID !== story.objectID
-        )
-      }
-    default: 
-      throw new Error()
-  }
-}
-
 function App() {
   // const stories = [
   //   {
@@ -110,108 +67,34 @@ function App() {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React')
 
   // const [stories, setStories] = React.useState(initalStories);
-  // const [stories, setStories] = React.useState([]);
-  const [stories, dispatchStories] = React.useReducer(storiesReducer, {
-    data: [], isLoading: false, isError: false
-  })
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isError, setIsError] = React.useState(false);
-  const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`)
+  const [stories, setStories] = React.useState([]);
 
   const getAsyncStories = () => 
-    new Promise((resolve, reject) => 
-      // setTimeout(
-      //   () => resolve({data: {stories: initalStories}}), 
-      //   2000
-      // )
+    new Promise(resolve => 
       setTimeout(
-        reject, 
+        () => resolve({data: {stories: initalStories}}), 
         2000
       )
     )
-  
-  const handleFetchStories = React.useCallback(() => {
-    if (!searchTerm) return
-
-    dispatchStories({
-      type: 'STORIES_FETCH_INIT'
-    })
-
-    // 从网络获取
-    fetch(url).then(res => {
-      return res.json()
-    }).then(result => {
-      dispatchStories({
-        type: 'STORIES_FETCH_SUCCESS',
-        payload: result.hits
-      })
-    }).catch(() => {
-      dispatchStories({type: 'STORIES_FETCH_FAILURE'})
-    })
-  }, [url])
 
   React.useEffect(() => {
-    // // setIsLoading(true)
-
-    // if (!searchTerm) return
-
-    // dispatchStories({
-    //   type: 'STORIES_FETCH_INIT'
-    // })
-
-    // // getAsyncStories().then(result => {
-    // //   // setStories(result.data.stories)
-    // //   dispatchStories({
-    // //     type: 'STORIES_FETCH_SUCCESS',
-    // //     payload: result.data.stories
-    // //   })
-    // //   // setIsLoading(false)
-    // // })
-    // // .catch(err => {
-    // //   dispatchStories({
-    // //     type: 'STORIES_FETCH_FAILURE'
-    // //   })
-    // // })
-
-    // // 从网络获取
-    // fetch(`${API_ENDPOINT}${searchTerm}`).then(res => {
-    //   return res.json()
-    // }).then(result => {
-    //   dispatchStories({
-    //     type: 'STORIES_FETCH_SUCCESS',
-    //     payload: result.hits
-    //   })
-    // }).catch(() => {
-    //   dispatchStories({type: 'STORIES_FETCH_FAILURE'})
-    // })
-    handleFetchStories()
-  }, [handleFetchStories])
+    getAsyncStories().then(result => {
+      setStories(result.data.stories)
+    });
+  }, [])
 
   const handleRemoveStory = (item) => {
-    // const newStories = stories.filter(story => item.objectID !== story.objectID)
-    // // setStories(newStories)
-    // dispatchStories({
-    //   type: 'SET_STORIES',
-    //   payload: newStories
-    // })
-
-    dispatchStories({
-      type: 'REMOVE_STORY',
-      payload: item
-    })
+    const newStories = stories.filter(story => item.objectID !== story.objectID)
+    setStories(newStories)
   }
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value)
   }
 
-  // const searchStories = stories.data.filter(story => {
-  //   return story.title.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
-  // })
-
-  const handleSearchSubmit = () => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`)
-  }
+  const searchStories = stories.filter(story => {
+    return story.title.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
+  })
 
   return (
     <div className="App">
@@ -229,23 +112,13 @@ function App() {
       {/* <Search onSearch={handleSearch} search={searchTerm}/> */}
       {/* <InputWithLabel id="search" label="Search" value={searchTerm} onInputChange={handleSearch} /> */}
 
-      <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch} isFocused > 
+      <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch} isFocused>
         <strong>Search</strong>
       </InputWithLabel>
 
-      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>Submit</button>
-
       <hr />
 
-      {stories.isError && <p>Something went wrong</p>}
-
-      {
-        stories.isLoading ? (
-          <p>Loading?...</p>
-        ) : (
-          <List list={stories.data} onRemoveItem={handleRemoveStory}/>
-        )
-      }
+      <List list={searchStories} onRemoveItem={handleRemoveStory}/>
 
     </div>
   );
@@ -330,5 +203,6 @@ const useSemiPersistentState = (key,  initalState) => {
 
   return [value, setValue]
 }
+
 
 export default App;
