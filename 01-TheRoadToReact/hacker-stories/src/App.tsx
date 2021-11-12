@@ -1,12 +1,22 @@
 import './App.css';
 import React from 'react'
+import axios from 'axios'
+
+type Story = {
+  objectID: string;
+  url: string;
+  title: string;
+  author: string;
+  num_comments: number;
+  points: number;
+}
 
 const title = 'React';
 const welcome = {
   greeting: 'Hey',
   title: 'React'
 };
-function getTitle(title) {
+function getTitle(title: string) {
   return title
 }
 // const list = [
@@ -130,7 +140,7 @@ function App() {
       )
     )
   
-  const handleFetchStories = React.useCallback(() => {
+  const handleFetchStories = React.useCallback(async () => {
     if (!searchTerm) return
 
     dispatchStories({
@@ -138,16 +148,27 @@ function App() {
     })
 
     // 从网络获取
-    fetch(url).then(res => {
-      return res.json()
-    }).then(result => {
+    // fetch(url).then(res => {
+    //   return res.json()
+    // }).then(result => {
+    //   dispatchStories({
+    //     type: 'STORIES_FETCH_SUCCESS',
+    //     payload: result.hits
+    //   })
+    // }).catch(() => {
+    //   dispatchStories({type: 'STORIES_FETCH_FAILURE'})
+    // })
+    try {
+      const result = await axios.get(url)
+
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
-        payload: result.hits
+        payload: result.data.hits
       })
-    }).catch(() => {
+    }catch{
       dispatchStories({type: 'STORIES_FETCH_FAILURE'})
-    })
+    }
+    
   }, [url])
 
   React.useEffect(() => {
@@ -209,9 +230,25 @@ function App() {
   //   return story.title.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
   // })
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = (event) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`)
+
+    event.preventDefault()
   }
+
+  const SearchForm = ({
+    searchTerm,
+    onSearchInput,
+    onSearchSubmit
+  }) => (
+    <form onSubmit={onSearchSubmit}>
+      <InputWithLabel id="search" value={searchTerm} onInputChange={onSearchInput} isFocused > 
+        <strong>Search</strong>
+      </InputWithLabel>
+
+      <button type="submit" disabled={!searchTerm}>Submit</button>
+    </form>
+  )
 
   return (
     <div className="App">
@@ -229,11 +266,11 @@ function App() {
       {/* <Search onSearch={handleSearch} search={searchTerm}/> */}
       {/* <InputWithLabel id="search" label="Search" value={searchTerm} onInputChange={handleSearch} /> */}
 
-      <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch} isFocused > 
-        <strong>Search</strong>
-      </InputWithLabel>
-
-      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>Submit</button>
+      <SearchForm 
+        searchTerm={searchTerm}
+        onSearchInput={handleSearch}
+        onSearchSubmit={handleSearchSubmit}
+      />
 
       <hr />
 
@@ -322,10 +359,16 @@ const InputWithLabel = ({id, value, onInputChange, type='text', children, isFocu
   )
 }
 
-const useSemiPersistentState = (key,  initalState) => {
+const useSemiPersistentState = (key: string,  initalState: string): [string, (newValue: string) => void] => {
+  const isMounted = React.useRef(false)
   const [value, setValue] = React.useState(localStorage.getItem(key) || initalState);
   React.useEffect(() => {
-    localStorage.setItem(key, value)
+    if (!isMounted.current) {
+      isMounted.current = true
+    } else {
+      console.log('A')
+      localStorage.setItem(key, value)
+    }
   }, [value, key])
 
   return [value, setValue]
