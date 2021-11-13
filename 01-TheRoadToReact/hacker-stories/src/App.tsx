@@ -1,6 +1,8 @@
 import './App.css';
-import React from 'react'
-import axios from 'axios'
+import React from 'react';
+import axios from 'axios';
+import List from './List';
+import SearchForm from './SearchForm';
 
 type Story = {
   objectID: string;
@@ -10,6 +12,41 @@ type Story = {
   num_comments: number;
   points: number;
 }
+
+type Stories = Array<Story>
+
+
+
+type StoriesState = {
+  data: Stories;
+  isLoading: boolean;
+  isError: boolean;
+}
+
+interface StoriesFetchInitAction {
+  type: 'STORIES_FETCH_INIT'
+}
+interface StoriesFetchSuccessAction {
+  type: 'STORIES_FETCH_SUCCESS';
+  payload: Stories;
+}
+
+interface StoriesFetchFailureAction {
+  type: 'STORIES_FETCH_FAILURE';
+}
+
+interface StoriesRemoveAction {
+  type: 'REMOVE_STORY';
+  payload: Story;
+}
+
+type StoriesAction = 
+  | StoriesFetchInitAction 
+  | StoriesFetchSuccessAction 
+  | StoriesFetchFailureAction 
+  | StoriesRemoveAction
+
+
 
 const title = 'React';
 const welcome = {
@@ -39,7 +76,7 @@ function getTitle(title: string) {
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query='
 
-const storiesReducer = (state, action) => {
+const storiesReducer = (state: StoriesState, action: StoriesAction) => {
   // if (action.type === 'SET_STORIES') {
   //   return action.payload
   // } else if(action.type === 'REMOVE_STORY') {
@@ -79,6 +116,9 @@ const storiesReducer = (state, action) => {
       throw new Error()
   }
 }
+
+const getLastSearches = (urls: any[]) => urls.slice(-5)
+const extraSearchTerm = (url: string) => url.replace(API_ENDPOINT, '');
 
 function App() {
   // const stories = [
@@ -126,7 +166,9 @@ function App() {
   })
   const [isLoading, setIsLoading] = React.useState(false);
   const [isError, setIsError] = React.useState(false);
-  const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`)
+  const [urls, setUrls] = React.useState([`${API_ENDPOINT}${searchTerm}`])
+
+  const lastSearches = getLastSearches(urls)
 
   const getAsyncStories = () => 
     new Promise((resolve, reject) => 
@@ -159,7 +201,8 @@ function App() {
     //   dispatchStories({type: 'STORIES_FETCH_FAILURE'})
     // })
     try {
-      const result = await axios.get(url)
+      const lastUrl = urls[urls.length - 1]
+      const result = await axios.get(lastUrl)
 
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
@@ -169,7 +212,7 @@ function App() {
       dispatchStories({type: 'STORIES_FETCH_FAILURE'})
     }
     
-  }, [url])
+  }, [urls])
 
   React.useEffect(() => {
     // // setIsLoading(true)
@@ -208,7 +251,7 @@ function App() {
     handleFetchStories()
   }, [handleFetchStories])
 
-  const handleRemoveStory = (item) => {
+  const handleRemoveStory = (item: Story) => {
     // const newStories = stories.filter(story => item.objectID !== story.objectID)
     // // setStories(newStories)
     // dispatchStories({
@@ -222,7 +265,7 @@ function App() {
     })
   }
 
-  const handleSearch = (event) => {
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value)
   }
 
@@ -230,25 +273,18 @@ function App() {
   //   return story.title.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
   // })
 
-  const handleSearchSubmit = (event) => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`)
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const url = `${API_ENDPOINT}${searchTerm}`
+    setUrls(urls.concat(url))
 
     event.preventDefault()
   }
 
-  const SearchForm = ({
-    searchTerm,
-    onSearchInput,
-    onSearchSubmit
-  }) => (
-    <form onSubmit={onSearchSubmit}>
-      <InputWithLabel id="search" value={searchTerm} onInputChange={onSearchInput} isFocused > 
-        <strong>Search</strong>
-      </InputWithLabel>
+  const handleLastSearch = (searchTerm: any) => {
+    const url = `${API_ENDPOINT}${searchTerm}`
+    setUrls(urls.concat(url))
+  }
 
-      <button type="submit" disabled={!searchTerm}>Submit</button>
-    </form>
-  )
 
   return (
     <div className="App">
@@ -272,6 +308,12 @@ function App() {
         onSearchSubmit={handleSearchSubmit}
       />
 
+      {
+        lastSearches.map(url => (
+          <button key={url} type="button" onClick={() => handleLastSearch(url)}>{url}</button>
+        ))
+      }
+
       <hr />
 
       {stories.isError && <p>Something went wrong</p>}
@@ -286,77 +328,6 @@ function App() {
 
     </div>
   );
-}
-
-const List = ({list, onRemoveItem}) => 
-  list.map((item) => 
-    <Item 
-      key={item.objectID} 
-      item={item}
-      onRemoveItem={onRemoveItem}
-    />)
-
-const Item = ({item, onRemoveItem}) => {
-  // const handleRemoveItem = () => onRemoveItem(item)
-
-  return (
-    <div>
-      <span>
-        <a href={item.url}>{title}</a>
-      </span>
-      <span>{item.author}</span>
-      <span>{item.num_comments}</span>
-      <span>{item.points}</span>
-      <span>
-        {/* <button type="button" onClick={onRemoveItem.bind(null, item)}>Dismiss</button> */}
-        <button type="button" onClick={() => onRemoveItem(item)}>Dismiss</button>
-      </span>
-    </div>
-  )
-}
-
-// const Search = ({search, onSearch} ) => (
-//   <div>
-//     <label htmlFor="search">Search:</label>
-//     <input id="search" type="text" value={search} onChange={onSearch}></input>
-//   </div>
-// )
-
-// const Search = ({search, onSearch} ) => [
-//   <label htmlFor="search">Search:</label>,
-//   <input id="search" type="text" value={search} onChange={onSearch}></input>
-// ]
-  
-// const InputWithLabel = ({id, label, value, onInputChange, type='text'}) => (
-//   <>
-//     <label htmlFor={id}>{label}</label>
-//     <input id="search" type="text" value={value} onChange={onInputChange} type={type}></input>
-//   </>
-// )
-
-const InputWithLabel = ({id, value, onInputChange, type='text', children, isFocused}) => {
-  const inputRef = React.useRef();
-
-  React.useEffect(() => {
-    if (isFocused && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [isFocused])
-
-  return (
-    <>
-      <label htmlFor={id}>{children}</label>
-      <input 
-        ref={inputRef}
-        id="search" 
-        autoFocus={isFocused} 
-        type="text" 
-        value={value} 
-        onChange={onInputChange} 
-        type={type}
-      />
-    </>
-  )
 }
 
 const useSemiPersistentState = (key: string,  initalState: string): [string, (newValue: string) => void] => {
