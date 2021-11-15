@@ -1,8 +1,5 @@
 ## 📘 TypeScript Deep Dive  
 
-### 🐱‍🚀前言  
-> 最开始接触TypeScript的时候还是刚进公司实习的时候，那时候编译器总是莫名其妙报一些错误，也看不懂，到现在也没系统的去学习一下typescript，调试不了的还是一直都用any解决，哈哈哈，总之呢，还是要深入学习一下  
-
 ### 01-TypeScript项目  
 #### 编译上下文  
 1. 这个概念听起来很熟悉又很陌生，在TypeScript中我们主要用这个概念来给文件分组，告诉TypeScript哪些文件是有效的，哪些是无效的，通常项目中会有一个``tscinfig.json``文件加以区分  
@@ -180,5 +177,94 @@ let bar: foo; // ERROR: "cannot find name 'foo'"
   // 导入使用 import someName from 'someModule' 语法
 
   import someLocalNameForThisFile from './foo';
+  ```  
+
+4. 模块路径  
+   - 相对模块路径(路径以 . 开头，例如: ``./someFile 或者 ../../someFolder/someFile等``)  
+     按照相对路径来
+   - 动态查找  
+     模仿Node模块解析策略  
+  
+5. 什么是``place``  
+   指的是我们要告诉TypeScript将会检查哪些内容的文件(例如一个foo的place)  
+   - 如果这个place表示一个文件，如``foo.ts``，Nice~  
+   - 否则，如果这个place是一个文件夹，并且存在一个文件``foo/index.ts``，Nice~  
+   - 否则，如果这个place是一个文件夹，并且存在一个``foo/package.json``，在该文件中指定``types``的文件存在, Nice~  
+   - 否则，如果这个place是一个文件夹，并且存在一个``package.json``，在该文件中指定``main``文件的存在，Nice~  
+   从文件类型上来说，实际上是指``.ts .d.ts 或者 .js``  
+
+6. 重写类型的动态查找  
+   我们可以通过`` declare module 'somePath``声明一个全局模块的方式，来解决查找模块路径的问题
+   ```typescript
+    // global.d.ts
+    declare module 'foo' {
+      // some variable declarations
+      export var bar: number;
+    }
+   ```
+   接着
+   ```typescript
+    // anyOtherTsFileInYourProject.ts
+    import * as foo from 'foo';
+    // TypeScript 将假设（在没有做其他查找的情况下）
+    // foo 是 { bar: number }
+   ```  
+  
+7. import / require 仅仅是导入类型
+   语句 `` import foo = require('foo') `` 实际上只做了两件事： 
+   - 导入foo模块的所有类型信息；
+   - 确定foo模块运行时的依赖关系；  
+  
+8. global.d.ts  
+   这个文件只是一种扩充，我们建议使用基于文件的模块，也就是在各个文件中去定义类型，而不是选择污染全局命名空间。
+
+#### 命名空间  
+1. 在JavaScript使用命名空间时，有一个常用的语法
+   ```javascript
+  (function(something) {
+    something.foo = 123
+  })(something || (something = {}))
+   ```
+  > something || (something = {}) 允许匿名函数 function (something) {} 向现有对象添加内容，或者创建一个新对象，然后向该对象添加内容，这意味着你可以拥有两个由某些边界拆成的块
+
+  ```javascript
+  (function(something) {
+    something.foo = 123
+  })(something || (something = {}))
+
+  console.log(something) // {foo: 123}
+
+  (function(something) {
+    something.bar = 456
+  })(something || (something = {}))
+
+  console.log(something) // {foo: 123, bar: 456}
   ```
 
+  >在确保创建的变量不会泄漏至全局命名空间时，这种方式在 JavaScript 中很常见。当基于文件模块使用时，你无须担心这点，但是该模式仍然适用于一组函数的逻辑分组。因此 TypeScript 提供了 namespace 关键字来描述这种分组
+
+  ```typescript
+  namespace Utility {
+    export function log(msg) {
+      console.log(msg)
+    }
+
+    export function error(msg) {
+      console.log(msg)
+    } 
+  }
+
+  Utility.log('Call me');
+  Utility.error('maybe');
+  ```
+
+  ``namespace``实现的原理和上面的javascript代码是一样的  
+
+  ```javascript
+  function (Utility) {
+    // 添加属性至 Utility
+  }(Utility || (Utility = {}))
+  ```  
+
+#### 动态导入表达式  
+指的是我们可以使用``import()``这个语法，来对模块进行异步加载，返回的是一个Promise，非常方便
