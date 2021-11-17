@@ -200,3 +200,6 @@
    ```
    注意，implements 限制了类实例的结构，如下所示:
    `` let foo: Point = new MyPoint() ``
+
+#### 枚举  
+1. 
