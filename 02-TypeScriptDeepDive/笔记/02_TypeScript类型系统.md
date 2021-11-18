@@ -202,4 +202,123 @@
    `` let foo: Point = new MyPoint() ``
 
 #### 枚举  
-1. 
+1. 枚举是组织手机有关变量的一种方式
+   ```typescript
+  enum CardSuit {
+    Clubs,
+    Diamonds,
+    Hearts,
+    Spades
+  }
+
+  // 简单的使用枚举类型
+  let Card = CardSuit.Clubs;
+
+  // 类型安全
+  Card = 'not a member of card suit'; // Error: string 不能赋值给 `CardSuit` 类型
+   ```
+   这些枚举类型的值都是数字类型，因此他们被称为数字类型枚举  
+  
+2. 数字类型枚举与数字类型  
+   数字类型枚举，允许我们将数字或者其他任何与数字类型兼容的类型赋值给枚举类型的实例  
+   ```typescript
+    enum Color {
+      Red,
+      Green,
+      Blue
+    }
+
+    let col = Color.Red;
+    col = 0; // 有效的，这也是 Color.Red
+   ```  
+
+3. 数字类型枚举与字符串类型  
+   首先了解它编译之后的JavaScript
+   ```typescript
+    enum Tristate {
+      False,
+      True,
+      Unknown
+    }
+   ```
+   其被编译成JavaScript后如下：
+   ```typescript
+    var Tristate;
+    (function(Tristate) {
+      Tristate[(Tristate['False'] = 0)] = 'False';
+      Tristate[(Tristate['True'] = 1)] = 'True';
+      Tristate[(Tristate['Unknown'] = 2)] = 'Unknown';
+    })(Tristate || (Tristate = {}));
+   ```  
+
+4. 改变与数字枚举关联的数字  
+   默认情况下，第一个枚举是 0 ，然后每个后续值一次递增 1
+
+5. 使用数字类型作为标志  
+   枚举的一个很好用途是使用枚举作为标志。这些标志允许你检查一组条件中的某个条件是否为真。  
+   - 我们使用``|=``来添加一个标志  
+   - 组合使用``&=``和``~``来清理一个标志  
+   - ``|``来合并标志  
+
+6. 字符串枚举  
+   在上文中，我们只看到了数字类型的枚举，实际上，枚举类型的值，也可以是字符串类型。  
+   ```typescript
+    export enum EvidenceTypeEnum {
+      UNKNOWN = '',
+      PASSPORT_VISA = 'passport_visa',
+      PASSPORT = 'passport',
+      SIGHTED_STUDENT_CARD = 'sighted_tertiary_edu_id',
+      SIGHTED_KEYPASS_CARD = 'sighted_keypass_card',
+      SIGHTED_PROOF_OF_AGE_CARD = 'sighted_proof_of_age_card'
+    }
+   ```  
+   这些可以更容易被处理和调试，因为他们提供有有意义 / 可调式的字符串  
+
+7. 常量枚举  
+   ```typescript
+    enum Tristate {
+      False,
+      True,
+      Unknown
+    }
+
+    const lie = Tristate.False;
+   ```  
+
+8. 常量枚举 preserveConstEnums 选项  
+   > 使用内联语法对性能有明显的提升作用。运行时没有 Tristate 变量的事实，是因为编译器帮助你把一些在运行时没有用到的不编译成 JavaScript。然而，你可能想让编译器仍然把枚举类型编译成 JavaScript，用于如上例子中从字符串到数字，或者是从数字到字符串的查找。在这种情景下，你可以使用编译选项 --preserveConstEnums，它会编译出 var Tristate 的定义，因此你在运行时，手动使用 Tristate['False'] 和 Tristate[0]。并且这不会以任何方式影响内联  
+
+9. 有静态方法的枚举  
+   你可以使用`` enum + namespace ``的声明的方式向枚举类型添加静态方法。如下例所示，我们将静态成员`` isBusinessDay ``添加到枚举上： 
+   ```typescript
+    enum Weekday {
+      Monday,
+      Tuesday,
+      Wednesday,
+      Thursday,
+      Friday,
+      Saturday,
+      Sunday
+    }
+
+    namespace Weekday {
+      export function isBusinessDay(day: Weekday) {
+        switch (day) {
+          case Weekday.Saturday:
+          case Weekday.Sunday:
+            return false;
+          default:
+            return true;
+        }
+      }
+    }
+
+    const mon = Weekday.Monday;
+    const sun = Weekday.Sunday;
+
+    console.log(Weekday.isBusinessDay(mon)); // true
+    console.log(Weekday.isBusinessDay(sun));
+   ```  
+
+10. 开放式枚举  
+    你只有在不使用模块时，开放式的枚举才有意义，你应该使用模块，因此这部分在文章最后

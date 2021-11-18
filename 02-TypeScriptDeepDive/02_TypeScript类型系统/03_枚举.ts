@@ -74,3 +74,11 @@ const value = "passport" as EvidenceTypeEnum;
 if (value === EvidenceTypeEnum.PASSPORT) {
   console.log(value);
 }
+
+const enum Tristate {
+  False,
+  True,
+  Unkmown,
+}
+
+const lie = Tristate.False;
