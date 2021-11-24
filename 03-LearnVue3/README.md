@@ -8,4 +8,44 @@
    - 根据用户输入的值过滤这些仓库  
    - 更新用户仓库  
    我们在代码实现的时候会发现，这三个其实是一整块大的逻辑，但是我们在写代码时将其拆分成为了好多部分，比如说在``computed``中发起请求，请求完成之后调用``mothods``里面的相关方法，这样一来同一块逻辑被拆分了很多部分，当后续有人重新看这些代码时需要频繁跳转代码，十分麻烦，为此出现了组合式API， 它提供一个专门的地方让我们统一处理这些逻辑情况  
-   
+   - 避免使用``this``，因为它不会找到组件实例。``setup``调用发生在``data``property、``computed``property等被解析之前，故无法获取  
+   - 在3.0中，我们可以通过一个新的``ref``函数使任何响应式变量在任何地方起作用，接受参数并将其包裹在一个带有``value``property的对象中返回(coffee.gif)  
+   - 在``setup``中注册生命周期钩子，组合式 API 上的生命周期钩子与选项式 API 的名称相同，但前缀为 on：即 ``mounted`` 看起来会像 ``onMounted``。  
+   - ``watch``响应式更改，它接受三个参数
+     > 1. 一个想要侦听的响应式引用或 getter 函数 2. 一个回调 3.可选的配置选项  
+     ```typescript
+      import { ref, watch } from 'vue'
+
+      const counter = ref(0)
+      watch(counter, (newValue, oldValue) => {
+        console.log('The new counter value is: ' + counter.value)
+      })
+     ```  
+     等效API  
+     ```typescript  
+     export default {
+        data() {
+          return {
+            counter: 0
+          }
+        },
+        watch: {
+          counter(newValue, oldValue) {
+            console.log('The new counter value is: ' + this.counter)
+          }
+        }
+      }
+     ```  
+  - 独立的``computed``属性  
+    要注意它输出的是一个只读的响应式引用  
+    ```typescript
+    import { ref, computed } from 'vue'
+
+    const counter = ref(0)
+    const twiceTheCounter = computed(() => counter.value * 2)
+
+    counter.value++
+    console.log(counter.value) // 1
+    console.log(twiceTheCounter.value) // 2
+    ```
+

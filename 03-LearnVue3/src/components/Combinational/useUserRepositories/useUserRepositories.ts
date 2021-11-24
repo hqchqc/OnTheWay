@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from "vue";
 type repositories = {
   id: number;
   name: string;
-};
+}[];
 
 const fetchUserRepositories = (username: string) => {
   if (username === "beanBag") {
@@ -32,7 +32,7 @@ const fetchUserRepositories = (username: string) => {
 };
 
 export default function useUserRepositories(user: { value: string }) {
-  const repositories = ref<repositories[]>([]);
+  const repositories = ref<repositories>([]);
   const getUserRepositories = async () => {
     repositories.value = await fetchUserRepositories(user.value);
   };

@@ -4,21 +4,16 @@
 
 <script setup lang="ts">
 import { toRefs } from '@vue/reactivity';
+import useRepositoryNameSearch from './useRepositoryNameSearch/useRepositoryNameSearch';
 import useUserRepositories from './useUserRepositories/useUserRepositories';
 
-const props = defineProps<{ user: { value: string } }>()
+const props = defineProps<{ user: string }>()
 
 const { user } = toRefs(props)
+const { repositories } = useUserRepositories(user)
+const { searchQuery, repositoriesMatchingSearchQuery } = useRepositoryNameSearch(repositories.value)
 
-const [repositories, getUserRepositories] = useUserRepositories(user)
-
-// const searchQuery = ref('')
-// const repositoriesMatchingSearchQuery = computed(() => {
-//   // return repositories.value.filter(
-//   //   repository => repository.name.includes(searchQuery.value)
-//   // )
-// })
-
+console.log(searchQuery.value, repositoriesMatchingSearchQuery)
 </script>
 
 
