@@ -47,5 +47,27 @@
     counter.value++
     console.log(counter.value) // 1
     console.log(twiceTheCounter.value) // 2
-    ```
+    ```  
+
+2. Teleport  
+   百度翻译为传送，哈哈哈哈，可以说是很形象了，其实就是字面意思，在一个组件中如果有不方便在这个组件展示的部分，我们可以将它用``teleport``包起来，并使用``to``属性告诉它将要挂在到什么元素上面，就跟现在antdesign的``getPopupContainer``一个道理吧  
+   1. > 一个常见的场景是创建一个包含全屏模式的组件。在大多数情况下，你希望模态框的逻辑存在于组件中，但是模态框的快速定位就很难通过 CSS 来解决，或者需要更改组件组合。  
+   ```html 
+    <template>
+      <button @click="modalOpen = true">Open full screen modal!</button>
+      <teleport to="body">
+        <div v-if="modalOpen" class="modal">
+          <div>
+            I'm a modal!(My parent is "body")
+            <HelloWorld msg="teleport" />
+            <button @click="modalOpen = false">Close</button>
+          </div>
+        </div>
+      </teleport>
+    </template>
+    ```  
+
+    2. 当在``teleport``下还有其它子组件时，子组件的挂载点还是会在父组件下面  
+    3. 当有多个``teleport``时，顺序就是简单的追加——稍后挂载将位于目标元素中较早的挂载之后  
+
 

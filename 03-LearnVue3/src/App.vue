@@ -3,12 +3,14 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import HelloWorld from './components/HelloWorld.vue'
 import CombinatorialAPI from './components/Combinational/CombinatorialAPI.vue';
+import ModalButton from './components/Teleport/ModalButton.vue';
 </script>
 
 <template>
   <img alt="Vue logo" src="./assets/logo.png" />
   <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
   <CombinatorialAPI user="beanBag" />
+  <ModalButton />
 </template>
 
 <style>

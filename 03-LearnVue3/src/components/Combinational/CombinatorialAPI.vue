@@ -1,5 +1,6 @@
 <template>
   <h1 v-for="item in repositories">{{ item.name }}</h1>
+  <teleport to="#modal" />
 </template>
 
 <script setup lang="ts">
