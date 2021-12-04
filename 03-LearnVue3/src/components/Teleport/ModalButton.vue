@@ -1,20 +1,25 @@
 <script lang="ts">
 import HelloWorld from '../HelloWorld.vue'
+import MyComonent from '../VModel/VModel.vue'
 
 export default {
   name: "modalButton",
   data() {
     return {
-      modalOpen: false
+      modalOpen: false,
+      myText: ''
     };
   },
   components: {
-    HelloWorld
+    HelloWorld,
+    MyComonent
   }
 }
 </script>
 
 <template>
+  <MyComonent v-model.capitalize="myText" />
+
   <button @click="modalOpen = true">Open full screen modal!</button>
   <teleport to="body">
     <div v-if="modalOpen" class="modal">
