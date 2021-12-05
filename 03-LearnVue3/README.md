@@ -119,4 +119,11 @@
     3. 关于 v-model 
        允许我们自定义指令 
 
+5. 来自 runtime-core 的 createRebderer API ,用于创建自定义渲染器  
+   这里跳到了一个github的链接 `` https://github.com/vuejs/vue-next/tree/master/packages/runtime-core `` 应该和使用createApp代替之前的render有关  
+
+6. 单文件组件组合式API语法糖(<script setup>)  
+   和之前组合式API的内容差不多，主要是详细介绍了一下setup里边可以做什么
+
+
    
