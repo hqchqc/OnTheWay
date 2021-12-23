@@ -8,3 +8,4 @@
 - TypeScript Deep Dive
 - Vue3学习
 - 项目
+- 线上出bug也太难受了吧~
