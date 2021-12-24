@@ -174,5 +174,4 @@ type Coordinates = [number, number];
 type Callback = (data: string) => void;
 
 // unknown 类型只能赋值给 any 和 unknown 类型
-
 // any 类型可以赋值给任意类型
