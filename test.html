@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+</body>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+
+    <!-- <script src="https://webapi.amap.com/loader.js"></script> -->
+
+    <script>
+      const map = L.map('map', {
+          center: [22.3025,114.255],
+          zoom: 11,
+      })
+      L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+        attribution: '&copy; 高德地图',
+        subdomains: "1"
+      }).addTo(map);
+
+      // AMapLoader.load({
+      //   "key": "c651c3ab79a4957c74cef7d8b8885be9",   // 申请好的Web端开发者Key，首次调用 load 时必填
+      //   "version": "2.0",   // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
+      //   "plugins": [],           // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+      //   "AMapUI": {             // 是否加载 AMapUI，缺省不加载
+      //       "version": '1.1',   // AMapUI 版本
+      //       "plugins":['overlay/SimpleMarker'],       // 需要加载的 AMapUI ui插件
+      //   },
+      //   "Loca":{                // 是否加载 Loca， 缺省不加载
+      //       "version": '2.0'  // Loca 版本
+      //   },
+      // })
+      // .then((AMap)=>{
+      //   var map = new AMap.Map('container');
+      //   // map.addControl(new AMap.Scale());
+      // }).catch((e)=>{
+      //     console.error(e);  //加载错误提示
+      // });   
+
+    </script>
+</html>
