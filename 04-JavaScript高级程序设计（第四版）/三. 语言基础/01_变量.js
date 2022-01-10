@@ -115,3 +115,9 @@
   console.log(message === undefined);
   console.log(typeof ages);
 }
+
+{
+  // number类型
+  // undefined是null的派生类
+  // 都为假值 但是null的NaN为false
+}
